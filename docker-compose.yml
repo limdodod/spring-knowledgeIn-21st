@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - spring-knowledgein-21st_my-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: naver
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+    restart: always
+
+  app:
+    image: doapp
+    container_name: spring-app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app:/app
+    ports:
+      - "8080:8080"
+
+    networks:
+      - spring-knowledgein-21st_my-network
+
+volumes:
+  mysql-data:
+  app:
+
+networks:
+  spring-knowledgein-21st_my-network:
+    external: true
